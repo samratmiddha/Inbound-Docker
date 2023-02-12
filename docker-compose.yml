@@ -1,0 +1,51 @@
+version: "3.8"
+services:
+  frontend:
+    build: ./Inbound-Frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - database
+      - backend
+      - redis
+    volumes:
+      - ./Inbound-Frontend/:/app/
+
+  backend:
+    build: ./Inbound-backend
+    ports:
+      - 8000:8000
+    depends_on:
+      - database
+    volumes:
+      - ./Inbound-backend/:/app/
+    restart: on-failure:10
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+
+  database:
+    ports:
+      - 3020:5432
+    build:
+      context: ./Docker
+      dockerfile: database.Dockerfile
+    environment:
+      - POSTGRES_USER=samrat
+      - POSTGRES_PASSWORD=Samrat@1234
+      - POSTGRES_DB=inbound
+
+    volumes:
+      - ./db:/var/lib/postgresql/data/
+
+  redis:
+    ports:
+      - 6381:6379
+    image: redis
+    restart: always
+    volumes:
+      - cache:/data
+    command: redis-server --save 20 1 --loglevel warning
+volumes:
+  db:
+  cache:

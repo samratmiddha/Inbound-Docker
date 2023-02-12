@@ -1,0 +1,4 @@
+CREATE USER samrat;
+ALTER USER samrat WITH PASSWORD 'Samrat@1234';
+CREATE DATABASE inbound;
+GRANT ALL PRIVILEGES ON DATABASE inbound to samrat;
