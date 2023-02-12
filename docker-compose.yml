@@ -31,9 +31,9 @@ services:
       context: ./Docker
       dockerfile: database.Dockerfile
     environment:
-      - POSTGRES_USER=samrat
-      - POSTGRES_PASSWORD=Samrat@1234
-      - POSTGRES_DB=inbound
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_DB=database
 
     volumes:
       - ./db:/var/lib/postgresql/data/
