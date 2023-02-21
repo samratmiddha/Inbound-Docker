@@ -18,7 +18,7 @@ services:
 
   redis:
     ports:
-      - 6379:6379
+      - 6359:6379
     image: redis
     restart: always
     volumes:
@@ -31,12 +31,15 @@ services:
     build: ./inbound-backend
     command: bash -c "supervisord -c /supervisord.conf"
     ports:
-      - 8000:8000
+      - 8100:8000
     depends_on:
       - database
       - redis
     volumes:
-      - ./inbound-backend/:/app/
+      - type: bind
+        source: ./inbound-backend
+        target: /app
+        read_only: false
         # Mount 'supervisor.d' as its namesake in the root of the container
       - type: volume
         source: supervisor.d
@@ -66,13 +69,16 @@ services:
     stdin_open: true
     tty: true
     ports:
-      - 3000:3000
+      - 3100:3000
     depends_on:
       - database
       - backend
       - redis
     volumes:
-      - ./inbound-frontend/:/app/
+      - type: bind
+        source: ./inbound-frontend
+        target: /app
+        read_only: false
     networks:
       - network2
 
