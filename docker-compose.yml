@@ -1,7 +1,7 @@
 version: "3.8"
 services:
   frontend:
-    build: ./Inbound-Frontend
+    build: ./inbound-frontend
     ports:
       - 3000:3000
     depends_on:
@@ -9,16 +9,16 @@ services:
       - backend
       - redis
     volumes:
-      - ./Inbound-Frontend/:/app/
+      - ./inbound-frontend/:/app/
 
   backend:
-    build: ./Inbound-backend
+    build: ./inbound-backend
     ports:
       - 8000:8000
     depends_on:
       - database
     volumes:
-      - ./Inbound-backend/:/app/
+      - ./inbound-backend/:/app/
     restart: on-failure:10
     environment:
       - REDIS_HOST=redis
@@ -31,9 +31,9 @@ services:
       context: ./Docker
       dockerfile: database.Dockerfile
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=database
+      - POSTGRES_USER=samrat
+      - POSTGRES_PASSWORD=Samrat@1234
+      - POSTGRES_DB=inbound
 
     volumes:
       - ./db:/var/lib/postgresql/data/
