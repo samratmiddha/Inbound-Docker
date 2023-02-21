@@ -13,6 +13,8 @@ services:
 
     volumes:
       - ./db:/var/lib/postgresql/data/
+    networks:
+      - network
 
   frontend:
     build: ./inbound-frontend
@@ -24,6 +26,8 @@ services:
       - redis
     volumes:
       - ./inbound-frontend/:/app/
+    networks:
+      - network
 
   backend:
     build: ./inbound-backend
@@ -33,10 +37,29 @@ services:
       - database
     volumes:
       - ./inbound-backend/:/app/
+        # Mount 'supervisor.d' as its namesake in the root of the container
+      - type: volume
+        source: supervisor.d
+        target: /supervisor.d
+        read_only: false
+
+      # Mount 'web_server_logs' as its namesake in the root of the container
+      - type: volume
+        source: web_server_logs
+        target: /web_server_logs
+        read_only: false
+
+      # Mount '.history' as its namesake in the root of the container
+      - type: volume
+        source: .history
+        target: /.history
+        read_only: false
     restart: on-failure:10
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+    networks:
+      - network
 
   redis:
     ports:
@@ -46,6 +69,21 @@ services:
     volumes:
       - cache:/data
     command: redis-server --save 20 1 --loglevel warning
+    networks:
+      - network
 volumes:
   db:
   cache:
+  web_server_logs:
+
+  # This volume is for static files of backend
+  static_backend:
+
+  # This volume contains the supervisor.d conf files
+  supervisor.d:
+
+  # This volume contains the history files
+  .history:
+
+networks:
+  network:
