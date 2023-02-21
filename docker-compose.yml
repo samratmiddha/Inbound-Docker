@@ -16,25 +16,25 @@ services:
     networks:
       - network
 
-  frontend:
-    build: ./inbound-frontend
+  redis:
     ports:
-      - 3000:3000
-    depends_on:
-      - database
-      - backend
-      - redis
+      - 6379:6379
+    image: redis
+    restart: always
     volumes:
-      - ./inbound-frontend/:/app/
+      - cache:/data
+    command: redis-server --save 20 1 --loglevel warning
     networks:
       - network
 
   backend:
     build: ./inbound-backend
+    command: bash -c "supervisord -c /supervisord.conf"
     ports:
       - 8000:8000
     depends_on:
       - database
+      - redis
     volumes:
       - ./inbound-backend/:/app/
         # Mount 'supervisor.d' as its namesake in the root of the container
@@ -54,23 +54,28 @@ services:
         source: .history
         target: /.history
         read_only: false
-    restart: on-failure:10
+    restart: on-failure:2
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
     networks:
       - network
 
-  redis:
+  frontend:
+    build: ./inbound-frontend
+    stdin_open: true
+    tty: true
     ports:
-      - 6379:6379
-    image: redis
-    restart: always
+      - 3000:3000
+    depends_on:
+      - database
+      - backend
+      - redis
     volumes:
-      - cache:/data
-    command: redis-server --save 20 1 --loglevel warning
+      - ./inbound-frontend/:/app/
     networks:
       - network
+
 volumes:
   db:
   cache:
